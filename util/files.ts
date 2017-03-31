@@ -4,19 +4,19 @@
  * @param  {string|array} files
  * @return {string}
  */
-export default function transform(files?: string[] | string) : string {
-  if (files === undefined) {
-    return '';
-  }
+export default function transform(files?: string[] | string): string {
+	if (files === undefined) {
+		return "";
+	}
 
-  var toProcess = '';
-  if (files instanceof Array) {
-    files.forEach((f)=> {
-      toProcess += '"' + f + '" ';
-    });
-    toProcess = toProcess.trim();
-  } else {
-    toProcess = '"' + files + '"';
-  }
-  return toProcess;
+	let toProcess = "";
+	if (files instanceof Array) {
+		files.forEach((f) => {
+			toProcess += '"' + f + '" ';
+		});
+		toProcess = toProcess.trim();
+	} else {
+		toProcess = '"' + files + '"';
+	}
+	return toProcess;
 }

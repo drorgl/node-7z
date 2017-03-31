@@ -1,6 +1,6 @@
-import path = require('path');
-import when = require('when');
-import run from '../util/run';
+import path = require("path");
+import when = require("when");
+import run from "../util/run";
 import { ISwitches } from "../util/switches";
 
 /**
@@ -14,30 +14,30 @@ import { ISwitches } from "../util/switches";
  * @reject {Error} The error as issued by 7-Zip.
  */
 export default function update_archive(archive: string, files: string, options?: ISwitches): when.Deferred<string[]> {
-  //return when.promise((resolve, reject, progress) =>  {
-  let defer = when.defer<string[]>();
+	// return when.promise((resolve, reject, progress) =>  {
+	const defer = when.defer<string[]>();
 
-  // Create a string that can be parsed by `run`.
-  var command = '7z u "' + archive + '" "' + files + '"';
+	// Create a string that can be parsed by `run`.
+	const command = '7z u "' + archive + '" "' + files + '"';
 
-  // Start the command
-  run(command, options)
+	// Start the command
+	run(command, options)
 
-    // When a stdout is emitted, parse each line and search for a pattern. When
-    // the pattern is found, extract the file (or directory) name from it and
-    // pass it to an array. Finally returns this array.
-    .promise.then((resolved_value) => {
-      return defer.resolve();
-    }, (reject_reason) => {
-      return defer.reject(reject_reason);
-    }, (progress_data) => {
-      var entries: string[] = [];
-      progress_data.split('\n').forEach((line: string) => {
-        if (line.substr(0, 13) === 'Compressing  ') {
-          entries.push(line.substr(13, line.length).replace(path.sep, '/'));
-        }
-      });
-      return defer.notify(entries);
-    });
-  return defer;
+		// When a stdout is emitted, parse each line and search for a pattern. When
+		// the pattern is found, extract the file (or directory) name from it and
+		// pass it to an array. Finally returns this array.
+		.promise.then((resolved_value) => {
+			return defer.resolve();
+		}, (reject_reason) => {
+			return defer.reject(reject_reason);
+		}, (progress_data) => {
+			const entries: string[] = [];
+			progress_data.split("\n").forEach((line: string) => {
+				if (line.substr(0, 13) === "Compressing  ") {
+					entries.push(line.substr(13, line.length).replace(path.sep, "/"));
+				}
+			});
+			return defer.notify(entries);
+		});
+	return defer;
 }
