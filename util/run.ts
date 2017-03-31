@@ -103,7 +103,7 @@ export default function run(command: string, switches?: ISwitches): when.Deferre
 		if (code === 0) {
 			return defer.resolve(args);
 		}
-		defer.reject(new Node7zError(err, code));
+		defer.reject(new Node7zError(err, code, res));
 		// return reject(new Node7zError(err, code));
 	});
 

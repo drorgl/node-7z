@@ -1,6 +1,7 @@
 export interface ISwitches {
 	so?: boolean;
 	spl?: boolean;
+	spf?: boolean;
 	ssc?: boolean;
 	ssw?: boolean;
 	y?: boolean;
@@ -27,6 +28,7 @@ export function options_object_to_array(switches: ISwitches) {
 	// Set default values of boolean switches
 	switches.so = (switches.so === true) ? true : false;
 	switches.spl = (switches.spl === true) ? true : false;
+	switches.spf = (switches.spf === true) ? true : false;
 	switches.ssc = (switches.ssc === false) ? false : true;
 	switches.ssw = (switches.ssw === true) ? true : false;
 	switches.y = (switches.y === false) ? false : true;
