@@ -30,3 +30,6 @@ dummy.*
 # Online IDE
 .c9
 .codio
+
+/dist
+/npm-debug.log*

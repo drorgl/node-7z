@@ -1,10 +1,9 @@
-'use strict';
-var path = require('path');
-var when = require('when');
-var u    = {
-  run     : require('../util/run'),
-  switches: require('../util/switches')
-};
+import path = require('path');
+import when = require('when');
+
+
+  import run     from '../util/run';
+  import {ISwitches} from '../util/switches';
 
 /**
  * Test integrity of archive.
@@ -15,37 +14,30 @@ var u    = {
  * @progress {array} Extracted files and directories.
  * @reject {Error} The error as issued by 7-Zip.
  */
-module.exports = function (archive, options) {
-  return when.promise(function (resolve, reject, progress) {
+export default function test_archive (archive : string, options? : ISwitches) : when.Deferred<string[]> {
+    let defer = when.defer<string[]>();
 
     // Create a string that can be parsed by `run`.
     var command = '7z t "' + archive + '"';
 
     // Start the command
-    u.run(command, options)
+    run(command, options)
 
     // When a stdout is emitted, parse each line and search for a pattern. When
     // the pattern is found, extract the file (or directory) name from it and
     // pass it to an array. Finally returns this array.
-    .progress(function (data) {
-      var entries = [];
-      data.split('\n').forEach(function (line) {
+    .promise.then((resolve_value)=>{
+      return defer.resolve(resolve_value);
+    }, (reject_reason)=>{
+      return defer.reject(reject_reason);
+    }, (progress_data)=>{
+      var entries : string[] = [];
+      progress_data.split('\n').forEach((line : string)=> {
         if (line.substr(0, 12) === 'Testing     ') {
           entries.push(line.substr(12, line.length).replace(path.sep, '/'));
         }
       });
-      return progress(entries);
+      return defer.notify(entries);
     })
-
-    // When all is done resolve the Promise.
-    .then(function (args) {
-      return resolve(args);
-    })
-
-    // Catch the error and pass it to the reject function of the Promise.
-    .catch(function (err) {
-      return reject(err);
-    });
-
-  });
+  return defer;
 };

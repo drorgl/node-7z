@@ -1,9 +1,11 @@
-'use strict';
-var os    = require('os');
-var spawn = require('cross-spawn');
-var when  = require('when');
-var path  = require('path');
-var utilSwitches = require('./switches');
+import os    = require('os');
+import child_process = require("child_process");
+let spawn = child_process.spawn;
+//import spawn = require('cross-spawn');
+import when  = require('when');
+import path  = require('path');
+import {options_object_to_array,ISwitches} from './switches';
+import { Node7zError} from "./node7z_error";
 
 /**
  * @promise Run
@@ -13,14 +15,16 @@ var utilSwitches = require('./switches');
  * @reject {Error} The error issued by 7-Zip.
  * @reject {number} Exit code issued by 7-Zip.
  */
-module.exports = function (command, switches) {
-  return when.promise(function (fulfill, reject, progress) {
+export default function run(command : string, switches? : ISwitches) : when.Deferred<string[]> {
+  let defer = when.defer<string[]>();
+  //return when.promise<string[]>((fulfill , reject ) =>{
 
     // Parse the command variable. If the command is not a string reject the
     // Promise. Otherwise transform the command into two variables: the command
     // name and the arguments.
     if (typeof command !== 'string') {
-      return reject(new Error('Command must be a string'));
+      defer.reject(new Error('Command must be a string'));
+      return defer;
     }
     var cmd  = command.split(' ')[0];
     var args = [ command.split(' ')[1] ];
@@ -52,7 +56,7 @@ module.exports = function (command, switches) {
     }
 
     // Add switches to the `args` array.
-    var switchesArray = utilSwitches(switches);
+    var switchesArray = options_object_to_array(switches);
     switchesArray.forEach(function (s) { args.push(s); });
 
     // Remove now double quotes. If present in the spawned process 7-Zip will
@@ -72,7 +76,7 @@ module.exports = function (command, switches) {
     // When an stdout is emitted, parse it. If an error is detected in the body
     // of the stdout create an new error with the 7-Zip error message as the
     // error's message. Otherwise progress with stdout message.
-    var err;
+    let err : Error;
     var reg = new RegExp('Error:' + os.EOL + '?(.*)', 'g');
     var res = {
       cmd: cmd,
@@ -85,21 +89,24 @@ module.exports = function (command, switches) {
       if (res) {
         err = new Error(res[1]);
       }
-      return progress(data.toString());
+      defer.notify(data.toString());
+      //return progress(data.toString());
     });
     run.stderr.on('data', function (data) {
       //throw errors
-		  err = data.toString();
+		  err = new Error( data.toString());
     });
     run.on('error', function (err) {
-      reject(err)
+      defer.reject(err)
     });
     run.on('close', function (code) {
       if (code === 0) {
-        return fulfill(args);
+        return defer.resolve(args);
       }
-      return reject(err, code);
+      defer.reject(new Node7zError(err, code));
+      //return reject(new Node7zError(err, code));
     });
 
-  });
+  //});
+  return defer;
 };

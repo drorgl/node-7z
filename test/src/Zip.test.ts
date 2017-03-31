@@ -1,7 +1,8 @@
 /*global describe, it */
-'use strict';
-var expect = require('chai').expect;
-var Zip    = require('../../lib');
+import 'mocha';
+import chai = require('chai');
+let expect = chai.expect;
+import Zip from '../../src/index';
 
 describe('Class: `Zip`', function () {
 

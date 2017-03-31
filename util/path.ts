@@ -1,6 +1,10 @@
 'use strict';
 
-module.exports = function (options) {
+interface IOptions{
+  path:string;
+}
+
+export default function node7z_path (options : IOptions) {
   
   // Create a string that can be parsed by `run`.
   try {

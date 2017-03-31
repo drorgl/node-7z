@@ -1,4 +1,17 @@
-'use strict';
+export interface ISwitches {
+  so?: boolean;
+  spl?: boolean;
+  ssc?: boolean;
+  ssw?: boolean;
+  y?: boolean;
+
+  wildcards?: string[];
+
+  raw?: string[];
+
+  [key: string]: any;
+}
+
 
 /**
  * Transform an object of options into an array that can be passed to the
@@ -6,18 +19,18 @@
  * @param  {Object} switches An object of options
  * @return {array} Array to pass to the `run` function.
  */
-module.exports = function (switches) {
+export function options_object_to_array(switches: ISwitches) {
 
   // Default value for switches
   switches = switches || {};
 
-  var a = [];
+  var a: string[] = [];
   // Set default values of boolean switches
-  switches.so  = (switches.so  === true)  ? true  : false;
-  switches.spl = (switches.spl === true)  ? true  : false;
-  switches.ssc = (switches.ssc === false) ? false : true ;
-  switches.ssw = (switches.ssw === true)  ? true  : false;
-  switches.y   = (switches.y   === false) ? false : true ;
+  switches.so = (switches.so === true) ? true : false;
+  switches.spl = (switches.spl === true) ? true : false;
+  switches.ssc = (switches.ssc === false) ? false : true;
+  switches.ssw = (switches.ssw === true) ? true : false;
+  switches.y = (switches.y === false) ? false : true;
 
   var s;
   /*jshint forin:false*/
@@ -67,4 +80,4 @@ module.exports = function (switches) {
 
   return a;
 
-};
+}

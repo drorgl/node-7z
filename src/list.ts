@@ -1,10 +1,24 @@
-'use strict';
-var path = require('path');
-var when = require('when');
-var u    = {
-  run     : require('../util/run'),
-  switches: require('../util/switches')
-};
+import path = require('path');
+import when = require('when');
+
+import run from '../util/run';
+import { ISwitches } from "../util/switches";
+
+interface ISpec {
+  path?: string;
+  type?: string;
+  method?: string;
+  physicalSize?: number;
+  headersSize?: number;
+  encrypted?: string;
+}
+
+interface IFileRecord {
+  date: Date;
+  attr: string;
+  size: number;
+  name: string;
+}
 
 /**
  * List contents of archive.
@@ -15,35 +29,41 @@ var u    = {
  * @resolve {Object} Tech spec about the archive.
  * @reject {Error} The error as issued by 7-Zip.
  */
-module.exports = function (archive, options) {
-  return when.promise(function (resolve, reject, progress) {
+export default function list_archive(archive: string, options?: ISwitches): when.Deferred<ISpec> {
+  //return when.promise((resolve, reject) => {
+  let defer = when.defer<ISpec>();
 
-    var spec  = {};
-    /* jshint maxlen: 130 */
-    var regex = /(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) ([\.DA]+)\s+(\d+)\s*(?:\d+)\s+(\S+?\.\S+)/; 
-    /* jshint maxlen: 80 */
+  let entries: IFileRecord[] = [];
 
-    // Create a string that can be parsed by `run`.
-    var command = '7z l "' + archive + '" ';
+  let spec: ISpec = {};
+  /* jshint maxlen: 130 */
+  let regex = /(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) ([\.DHRSA]+)\s+(\d+)\s*(?:\d+)?\s+([\w\S\s]+)/;
+  /* jshint maxlen: 80 */
 
-    var buffer = ""; //Store imcomplete line of a progress data.
-    // Start the command
-    u.run(command, options)
+  // Create a string that can be parsed by `run`.
+  let command = '7z l "' + archive + '" ';
+
+  let buffer = ""; //Store imcomplete line of a progress data.
+  // Start the command
+  run(command, options)
 
     // When a stdout is emitted, parse each line and search for a pattern. When
     // the pattern is found, extract the file (or directory) name from it and
     // pass it to an array. Finally returns this array.
-    .progress(function (data) {
-      var entries = [];
-
+    .promise.then((resolved_value) => {
+      return defer.resolve(spec);
+    }, (rejected_reason) => {
+      return defer.reject(rejected_reason);
+    }, (progress_data) => {
       // Last progress had an incomplete line. Prepend it to the data and clear
       // buffer.
       if (buffer.length > 0) {
-        data = buffer + data;
+        progress_data = buffer + progress_data;
         buffer = "";
       }
 
-      data.split('\n').forEach(function (line) {
+      progress_data.split('\n').forEach((line: string) => {
+        line = line.trim();
 
         // Populate the tech specs of the archive that are passed to the
         // resolve handler.
@@ -61,19 +81,21 @@ module.exports = function (archive, options) {
           spec.encrypted = line.substr(12, line.length);
         } else {
           // Parse the stdout to find entries
-          var res = regex.exec(line);
+          let res = regex.exec(line);
           if (res) {
+            let return_date: Date;
+
             if (parseInt(res[1])) {
-              var return_date = new Date(res[1]);
+              return_date = new Date(res[1]);
             } else {
-              var return_date = null;
+              return_date = null;
             }
 
-            var e = {
+            let e : IFileRecord = {
               date: return_date,
               attr: res[2],
               size: parseInt(res[3], 10),
-              name: res[5].replace(path.sep, '/')
+              name: res[4].replace(path.sep, '/')
             };
 
             entries.push(e);
@@ -83,19 +105,11 @@ module.exports = function (archive, options) {
           else buffer = line;
 
         }
+
       });
-      return progress(entries);
-    })
-
-    // When all is done resolve the Promise.
-    .then(function () {
-      return resolve(spec);
-    })
-
-    // Catch the error and pass it to the reject function of the Promise.
-    .catch(function (err) {
-      return reject(err);
+      if (entries.length > 0){
+        return defer.notify(entries);
+      }
     });
-
-  });
-};
+  return defer;
+}

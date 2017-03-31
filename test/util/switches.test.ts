@@ -1,6 +1,7 @@
 /*global describe, it */
-'use strict';
-var expect   = require('chai').expect;
+import 'mocha';
+import chai = require('chai');
+let expect = chai.expect;
 var switches = require('../../util/switches');
 
 describe('Utility: `switches`', function () {

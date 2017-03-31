@@ -1,7 +1,8 @@
 /*global describe, it */
-'use strict';
-var expect = require('chai').expect;
-var files  = require('../../util/files');
+import 'mocha';
+import chai = require('chai');
+let expect = chai.expect;
+import files  from '../../util/files';
 
 describe('Utility: `files`', function () {
 
