@@ -16,7 +16,6 @@ import { ISwitches, options_object_to_array } from "./switches";
  */
 export default function run(command: string, switches?: ISwitches): when.Deferred<string[]> {
 	const defer = when.defer<string[]>();
-	// return when.promise<string[]>((fulfill , reject ) =>{
 
 	// Parse the command variable. If the command is not a string reject the
 	// Promise. Otherwise transform the command into two variables: the command
@@ -90,7 +89,6 @@ export default function run(command: string, switches?: ISwitches): when.Deferre
 			err = new Error(errres[1]);
 		}
 		defer.notify(data.toString());
-		// return progress(data.toString());
 	});
 	run.stderr.on("data", (data) => {
 		// throw errors
@@ -104,9 +102,7 @@ export default function run(command: string, switches?: ISwitches): when.Deferre
 			return defer.resolve(args);
 		}
 		defer.reject(new Node7zError(err, code, res));
-		// return reject(new Node7zError(err, code));
 	});
 
-	// });
 	return defer;
 }

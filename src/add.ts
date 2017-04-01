@@ -5,6 +5,7 @@ import transform_files from "../util/files";
 import run from "../util/run";
 import { ISwitches } from "../util/switches";
 
+import fs = require("fs");
 // path    : require('../util/path'),
 
 /**
@@ -24,7 +25,12 @@ export default function add_to_archive(archive: string, files_: string[] | strin
 	// Convert array of files into a string if needed.
 	const files = transform_files(files_);
 
-	const command = '7z a "' + archive + '" ' + files;
+	const command = '7z a "' + archive + '" ' + ((files.filename) ? "" : files.command); // + files.command;
+
+	if (files.filename) {
+		options = Object.assign({}, options);
+		options[`ir@${files.filename}`] = true;
+	}
 
 	// Start the command
 	run(command, options)
@@ -43,6 +49,10 @@ export default function add_to_archive(archive: string, files_: string[] | strin
 				}
 			});
 			return deferred.notify(entries);
+		}).finally(() => {
+			if (files.filename) {
+				fs.unlinkSync(files.filename);
+			}
 		});
 
 	return deferred;
