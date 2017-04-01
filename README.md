@@ -1,5 +1,6 @@
 node-7z
 =======
+[![Travis CI Build Status](https://api.travis-ci.org/drorgl/node-7z.svg)](https://travis-ci.org/drorgl/node-7z)
 
 > A Node.js wrapper for 7-Zip, originally made by Quentin Rossetti, converted to typescript.
 
