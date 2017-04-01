@@ -1,16 +1,16 @@
 {
   "name": "node-7z",
-  "version": "0.4.2",
+  "version": "1.0.0",
   "description": "A Node.js wrapper for 7-Zip",
   "main": "dist/src/index.js",
-  "types":"dist/src/index.d.ts",
+  "types": "dist/src/index.d.ts",
   "scripts": {
-    "install" : "tsc",
+    "install": "tsc",
     "build": "tsc",
     "test": "tsc && mocha --debug \"dist/test/**/*.js\"",
     "coverage": "tsc && istanbul cover node_modules/mocha/bin/_mocha dist/test/**/*.js --dir .tmp/coverage",
     "coveralls": "npm install coveralls && cat .tmp/coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
-    "tslint" : "tslint -c tslint.json './src/**/*.ts' './test/**/*.ts' './util/**/*.ts'"
+    "tslint": "tslint -c tslint.json './src/**/*.ts' './test/**/*.ts' './util/**/*.ts'"
   },
   "repository": {
     "type": "git",
