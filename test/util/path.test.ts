@@ -8,7 +8,11 @@ import path from "../../util/path";
 describe("Utility: `path`", () => {
 
 	it("should return deflaut flags with no args", () => {
-		const pathInSystem = exec.execSync("which 7z").toString();
+		if (process.platform === "win32"){
+			const pathInSystem = exec.execSync("where 7z").toString();
+		}else{
+			const pathInSystem = exec.execSync("which 7z").toString();
+		}
 	});
 
 });

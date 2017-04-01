@@ -6,8 +6,8 @@
   "types":"dist/src/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "test": "tsc && mocha --debug \"dist/test/src/*.js\"",
-    "coverage": "istanbul cover node_modules/mocha/bin/_mocha --dir .tmp/coverage",
+    "test": "tsc && mocha --debug \"dist/test/**/*.js\"",
+    "coverage": "tsc && istanbul cover node_modules/mocha/bin/_mocha dist/test/**/*.js --dir .tmp/coverage",
     "coveralls": "npm install coveralls && cat .tmp/coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
     "tslint" : "tslint -c tslint.json './src/**/*.ts' './test/**/*.ts' './util/**/*.ts'"
   },

@@ -15,14 +15,14 @@ describe("Utility: `run`", () => {
 	});
 
 	it("should return an error on when 7z gets one", (done) => {
-		run('7za "???"').promise.catch((err) => {
+		run('7z "???"').promise.catch((err) => {
 			expect(err.message).to.eql("Incorrect command line");
 			done();
 		});
 	});
 
 	it("should return an stdout on progress", (done) => {
-		run("7za", { h: true })
+		run("7z", { h: true })
 			.promise.then((resolve_value) => {
 				done();
 			},
@@ -33,7 +33,7 @@ describe("Utility: `run`", () => {
 	});
 
 	it("should correctly parse complex commands", (done) => {
-		run('7za a ".tmp/test/archive.7z" "*.exe" "*.dll"', {
+		run('7z a ".tmp/test/archive.7z" "*.exe" "*.dll"', {
 			m0: "=BCJ",
 			m1: "=LZMA:d=21"
 		})
@@ -51,7 +51,7 @@ describe("Utility: `run`", () => {
 	});
 
 	it("should correctly parse complex commands with spaces", (done) => {
-		run('7za a ".tmp/Folder A/Folder B\\archive.7z" "*.exe" "*.dll"', {
+		run('7z a ".tmp/Folder A/Folder B\\archive.7z" "*.exe" "*.dll"', {
 			m0: "=BCJ",
 			m1: "=LZMA:d=21",
 			p: "My mhjls/\\c $^é5°",
