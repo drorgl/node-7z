@@ -27,7 +27,7 @@ export default function delete_from_archive(archive: string, files_: string[] | 
 
 	if (files.filename) {
 		options = Object.assign({}, options);
-		options[`ir@${files.filename}`] = true;
+		options[`i@${files.filename}`] = true;
 	}
 
 	// Start the command

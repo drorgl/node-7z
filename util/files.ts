@@ -23,9 +23,8 @@ export default function transform(files?: string[] | string): ITransformInfo {
 		if (files.length > 20) {
 			const include_filename_tmp = get_temp_filename();
 			fs.writeFileSync(include_filename_tmp, files.join(os.EOL));
-			// -ir@"files_to_include.txt"
 			return {
-				command: ` -ir\@\"${include_filename_tmp}\" `,
+				command: ` -i\@\"${include_filename_tmp}\" `,
 				filename: include_filename_tmp
 			};
 		} else {
@@ -42,9 +41,8 @@ export default function transform(files?: string[] | string): ITransformInfo {
 		if (files.length > 50) {
 			const include_filename_tmp = get_temp_filename();
 			fs.writeFileSync(include_filename_tmp, files);
-			// -ir@"files_to_include.txt"
 			return {
-				command: ` -ir\@\"${include_filename_tmp}\" `,
+				command: ` -i\@\"${include_filename_tmp}\" `,
 				filename: include_filename_tmp
 			};
 		} else {
