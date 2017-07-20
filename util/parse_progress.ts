@@ -15,8 +15,8 @@ export function parse_progress(progress_data: string): string[] {
 			}
 		} else {
 			for (const update_op of progress_7z_16) {
-				if (line.startsWith(update_op + " ")) {
-					entries.push(line.substr((update_op + " ").length).replace(path.sep, "/"));
+				if (line.startsWith(update_op)) {
+					entries.push(line.substr((update_op).length).replace(path.sep, "/"));
 				}
 			}
 		}
