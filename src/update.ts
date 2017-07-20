@@ -1,5 +1,6 @@
 import path = require("path");
 import when = require("when");
+import {parse_progress} from "../util/parse_progress";
 import run from "../util/run";
 import { ISwitches } from "../util/switches";
 
@@ -15,7 +16,7 @@ import { ISwitches } from "../util/switches";
  */
 export default function update_archive(archive: string, files: string, options?: ISwitches): when.Deferred<string[]> {
 	// return when.promise((resolve, reject, progress) =>  {
-	const defer = when.defer<string[]>();
+	const deferred = when.defer<string[]>();
 
 	// Create a string that can be parsed by `run`.
 	const command = '7z u "' + archive + '" "' + files + '"';
@@ -27,17 +28,12 @@ export default function update_archive(archive: string, files: string, options?:
 		// the pattern is found, extract the file (or directory) name from it and
 		// pass it to an array. Finally returns this array.
 		.promise.then((resolved_value) => {
-			return defer.resolve();
+			return deferred.resolve();
 		}, (reject_reason) => {
-			return defer.reject(reject_reason);
+			return deferred.reject(reject_reason);
 		}, (progress_data) => {
-			const entries: string[] = [];
-			progress_data.split("\n").forEach((line: string) => {
-				if (line.substr(0, 13) === "Compressing  ") {
-					entries.push(line.substr(13, line.length).replace(path.sep, "/"));
-				}
-			});
-			return defer.notify(entries);
+			const entries = parse_progress(progress_data);
+			return deferred.notify(entries);
 		});
-	return defer;
+	return deferred;
 }
