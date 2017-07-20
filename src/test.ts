@@ -1,6 +1,8 @@
 import path = require("path");
 import when = require("when");
 
+import {parse_progress} from "../util/parse_progress";
+
 import run from "../util/run";
 import { ISwitches } from "../util/switches";
 
@@ -14,7 +16,7 @@ import { ISwitches } from "../util/switches";
  * @reject {Error} The error as issued by 7-Zip.
  */
 export default function test_archive(archive: string, options?: ISwitches): when.Deferred<string[]> {
-	const defer = when.defer<string[]>();
+	const deferred = when.defer<string[]>();
 
 	// Create a string that can be parsed by `run`.
 	const command = '7z t "' + archive + '"';
@@ -26,17 +28,12 @@ export default function test_archive(archive: string, options?: ISwitches): when
 		// the pattern is found, extract the file (or directory) name from it and
 		// pass it to an array. Finally returns this array.
 		.promise.then((resolve_value) => {
-			return defer.resolve(resolve_value);
+			return deferred.resolve(resolve_value);
 		}, (reject_reason) => {
-			return defer.reject(reject_reason);
+			return deferred.reject(reject_reason);
 		}, (progress_data) => {
-			const entries: string[] = [];
-			progress_data.split("\n").forEach((line: string) => {
-				if (line.substr(0, 12) === "Testing     ") {
-					entries.push(line.substr(12, line.length).replace(path.sep, "/"));
-				}
-			});
-			return defer.notify(entries);
+			const entries = parse_progress(progress_data);
+			return deferred.notify(entries);
 		});
-	return defer;
+	return deferred;
 }

@@ -5,6 +5,8 @@ import transform_files from "../util/files";
 import run from "../util/run";
 import { ISwitches } from "../util/switches";
 
+import {parse_progress} from "../util/parse_progress";
+
 import fs = require("fs");
 // path    : require('../util/path'),
 
@@ -42,12 +44,7 @@ export default function add_to_archive(archive: string, files_: string[] | strin
 			// When a stdout is emitted, parse each line and search for a pattern. When
 			// the pattern is found, extract the file (or directory) name from it and
 			// pass it to an array. Finally returns this array in the progress function.
-			const entries: string[] = [];
-			progress_data.split("\n").forEach((line: string) => {
-				if (line.substr(0, 13) === "Compressing  ") {
-					entries.push(line.substr(13, line.length).replace(path.sep, "/"));
-				}
-			});
+			const entries = parse_progress(progress_data);
 			return deferred.notify(entries);
 		}).finally(() => {
 			if (files.filename) {

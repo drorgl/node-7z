@@ -3,6 +3,7 @@ import child_process = require("child_process");
 const spawn = child_process.spawn;
 import when = require("when");
 import path = require("path");
+import { IVersionInfo, z7_version } from "../src/detect";
 import { Node7zError } from "./node7z_error";
 import { ISwitches, options_object_to_array } from "./switches";
 
@@ -71,6 +72,11 @@ export default function run(command: string, switches?: ISwitches): when.Deferre
 		}
 	});
 
+	if (z7_version.major >= 17) {
+		args.push("-bb3");
+		args.push("-bd");
+	}
+
 	// When an stdout is emitted, parse it. If an error is detected in the body
 	// of the stdout create an new error with the 7-Zip error message as the
 	// error's message. Otherwise progress with stdout message.
@@ -82,22 +88,22 @@ export default function run(command: string, switches?: ISwitches): when.Deferre
 		options: { stdio: "pipe" }
 	};
 
-	const run = spawn(res.cmd, res.args, res.options);
-	run.stdout.on("data", (data) => {
+	const proc = spawn(res.cmd, res.args, res.options);
+	proc.stdout.on("data", (data) => {
 		const errres = reg.exec(data.toString());
 		if (errres) {
 			err = new Error(errres[1]);
 		}
 		defer.notify(data.toString());
 	});
-	run.stderr.on("data", (data) => {
+	proc.stderr.on("data", (data) => {
 		// throw errors
 		err = new Error(data.toString());
 	});
-	run.on("error", (errrej) => {
+	proc.on("error", (errrej) => {
 		defer.reject(errrej);
 	});
-	run.on("close", (code) => {
+	proc.on("close", (code) => {
 		if (code === 0) {
 			return defer.resolve(args);
 		}

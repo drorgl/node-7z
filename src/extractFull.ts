@@ -1,6 +1,8 @@
 import path = require("path");
 import when = require("when");
 
+import {parse_progress} from "../util/parse_progress";
+
 import run from "../util/run";
 import { ISwitches } from "../util/switches";
 
@@ -16,7 +18,7 @@ import { ISwitches } from "../util/switches";
  */
 export default function extract_full(archive: string, dest: string, options?: ISwitches): when.Deferred<string[]> {
 	// return when.promise((resolve, reject)=> {
-	const defer = when.defer<string[]>();
+	const deferred = when.defer<string[]>();
 
 	// Create a string that can be parsed by `run`.
 	const command = '7z x "' + archive + '" -o"' + dest + '" ';
@@ -29,25 +31,20 @@ export default function extract_full(archive: string, dest: string, options?: IS
 		// pass it to an array. Finally returns this array.
 		// Also check if a file is extracted using an Unsupported Method of 7-Zip.
 		.promise.then((resolve_value) => {
-			return defer.resolve(resolve_value);
+			return deferred.resolve(resolve_value);
 		}, (reject_reason) => {
-			return defer.reject(reject_reason);
+			return deferred.reject(reject_reason);
 		}, (progress_data) => {
 			const isUnsupportedMethod = (progress_data.indexOf("Unsupported Method") !== -1)
 				? true
 				: false;
 			if (isUnsupportedMethod) {
-				return defer.reject(new Error("Unsupported Method"));
+				return deferred.reject(new Error("Unsupported Method"));
 			}
 
-			const entries: string[] = [];
-			progress_data.split("\n").forEach((line: string) => {
-				if (line.substr(0, 12) === "Extracting  ") {
-					entries.push(line.substr(12, line.length).replace(path.sep, "/"));
-				}
-			});
-			return defer.notify(entries);
+			const entries = parse_progress(progress_data);
+			return deferred.notify(entries);
 		});
 
-	return defer;
+	return deferred;
 }
